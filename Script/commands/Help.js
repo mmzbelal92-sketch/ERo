@@ -4,150 +4,100 @@ const path = require("path");
 
 module.exports.config = {
     name: "help",
-    version: "2.0.0",
+    version: "6.0.0",
     hasPermssion: 0,
     credits: "BELAL BOTX666",
-    description: "Shows all commands with details",
+    description: "ক্যাটাগরি অনুযায়ী ধাপে ধাপে চোখ ধাঁধানো হেল্প লিস্ট",
     commandCategory: "system",
     usages: "[command name/page number]",
     cooldowns: 5,
     envConfig: {
         autoUnsend: true,
-        delayUnsend: 20
+        delayUnsend: 30
     }
 };
 
 module.exports.languages = {
     "en": {
-        "moduleInfo": `╭━━━━━━━━━━━━━━━━╮
-┃ ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐈𝐍𝐅𝐎 ✨
-┣━━━━━━━━━━━┫
-┃ 🔖 Name: %1
-┃ 📄 Usage: %2
-┃ 📜 Description: %3
-┃ 🔑 Permission: %4
-┃ 👨‍💻 Credit: %5
-┃ 📂 Category: %6
-┃ ⏳ Cooldown: %7s
-┣━━━━━━━━━━━━━━━━┫
-┃ ⚙ Prefix: %8
-┃ 🤖 Bot Name: %9
-┃ 👑 Owner: ┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄
-╰━━━━━━━━━━━━━━━━╯`,
-        "helpList": "[ There are %1 commands. Use: \"%2help commandName\" to view more. ]",
-        "user": "User",
-        "adminGroup": "Admin Group",
-        "adminBot": "Admin Bot"
+        "moduleInfo": `┏━━━━━━━━━━━━━━━━━━━┓\n   ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐃𝐄𝐓𝐀𝐈𝐋𝐒 ✨\n┗━━━━━━━━━━━━━━━━━━━┛\n\n🔹 Name: %1\n🔹 Usage: %2\n🔹 Desc: %3\n🔹 Permission: %4\n🔹 Credit: %5\n🔹 Category: %6\n🔹 Cooldown: %7s\n\n━━━━━━━━━━━━━━━━━━━━\n⚙️ Prefix: %8\n🤖 Bot: %9\n👑 Owner: ┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄\n━━━━━━━━━━━━━━━━━━━━`
     }
 };
 
-// 🔹 এখানে আপনার ফটো Imgur লিংক করে বসাবেন ✅
+// আপনার দেওয়া স্পেশাল ইমেজ লিঙ্কসমূহ
 const helpImages = [
+    "https://i.imgur.com/6b6DGcW.jpeg",
+    "https://i.imgur.com/FQQq8WH.jpeg",
     "https://i.imgur.com/CY5sgsk.jpeg"
 ];
 
-
 function downloadImages(callback) {
     const randomUrl = helpImages[Math.floor(Math.random() * helpImages.length)];
-    const filePath = path.join(__dirname, "cache", "help_random.jpg");
-
+    const filePath = path.join(__dirname, "cache", "help_premium.jpg");
+    
     request(randomUrl)
         .pipe(fs.createWriteStream(filePath))
         .on("close", () => callback([filePath]));
 }
 
-module.exports.handleEvent = function ({ api, event, getText }) {
-    const { commands } = global.client;
-    const { threadID, messageID, body } = event;
-
-    if (!body || typeof body === "undefined" || body.indexOf("help") != 0) return;  
-    const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);  
-    if (splitBody.length < 2 || !commands.has(splitBody[1].toLowerCase())) return;  
-
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
-    const command = commands.get(splitBody[1].toLowerCase());  
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
-
-    const detail = getText("moduleInfo",  
-        command.config.name,  
-        command.config.usages || "Not Provided",  
-        command.config.description || "Not Provided",  
-        command.config.hasPermssion,  
-        command.config.credits || "Unknown",  
-        command.config.commandCategory || "Unknown",  
-        command.config.cooldowns || 0,  
-        prefix,  
-        global.config.BOTNAME || "BELAL BOTX666"  
-    );  
-
-    downloadImages(files => {  
-        const attachments = files.map(f => fs.createReadStream(f));  
-        api.sendMessage({ body: detail, attachment: attachments }, threadID, () => {  
-            files.forEach(f => fs.unlinkSync(f));  
-        }, messageID);  
-    });
-};
-
 module.exports.run = function ({ api, event, args, getText }) {
     const { commands } = global.client;
     const { threadID, messageID } = event;
-
     const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
+    const prefix = threadSetting.PREFIX || global.config.PREFIX;
+    const botName = "𝐁𝐄𝐋𝐀𝐋 𝐁𝐎𝐓 𝐗𝟔𝟔𝟔 ✡️";
+    const sig = "┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄";
 
+    // ১. নির্দিষ্ট কমান্ডের ডিটেইলস দেখলে
     if (args[0] && commands.has(args[0].toLowerCase())) {  
         const command = commands.get(args[0].toLowerCase());  
-
         const detailText = getText("moduleInfo",  
-            command.config.name,  
-            command.config.usages || "Not Provided",  
-            command.config.description || "Not Provided",  
-            command.config.hasPermssion,  
+            command.config.name.toUpperCase(),  
+            command.config.usages || "No usages",  
+            command.config.description || "No description",  
+            command.config.hasPermssion == 0 ? "User" : "Admin",  
             command.config.credits || "Unknown",  
-            command.config.commandCategory || "Unknown",  
+            command.config.commandCategory || "General",  
             command.config.cooldowns || 0,  
             prefix,  
-            global.config.BOTNAME || "✦───꯭─⃝‌‌𝔹𝔼𝕃𝔸𝕃 𝔹𝕆𝕋 ✡️──✦"  
+            botName
         );  
 
         downloadImages(files => {  
-            const attachments = files.map(f => fs.createReadStream(f));  
-            api.sendMessage({ body: detailText, attachment: attachments }, threadID, () => {  
+            api.sendMessage({ body: detailText, attachment: files.map(f => fs.createReadStream(f)) }, threadID, () => {  
                 files.forEach(f => fs.unlinkSync(f));  
             }, messageID);  
         });  
         return;  
     }  
 
-    const arrayInfo = Array.from(commands.keys())
-        .filter(cmdName => cmdName && cmdName.trim() !== "")
-        .sort();  
+    // ২. ক্যাটাগরি অনুযায়ী ধাপে ধাপে সব কমান্ড দেখলে
+    const categories = {};
+    for (let [name, value] of commands) {
+        const cat = value.config.commandCategory || "General";
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(name);
+    }
 
-    const page = Math.max(parseInt(args[0]) || 1, 1);  
-    const numberOfOnePage = 20;  
-    const totalPages = Math.ceil(arrayInfo.length / numberOfOnePage);  
-    const start = numberOfOnePage * (page - 1);  
-    const helpView = arrayInfo.slice(start, start + numberOfOnePage);  
+    let listMsg = `┏━━━━━━━━━━━━━━━━━━━┓\n   🔱  𝐁𝐄𝐋𝐀𝐋 𝐁𝐎𝐓 𝐗𝟔𝟔𝟔  🔱\n┗━━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-    let msg = helpView.map(cmdName => `┃ ✪ ${cmdName}`).join("\n");
+    for (const category in categories) {
+        listMsg += `✨ ━━『 ${category.toUpperCase()} 』━━ ✨\n`;
+        listMsg += `  ❯ ${categories[category].join(", ")}\n\n`;
+    }
 
-    const text = `╭━━━━━━━━━━━━━━━━╮
-┃ 📜 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 📜
-┣━━━━━━━━━━━━━━━┫
-┃ 📄 Page: ${page}/${totalPages}
-┃ 🧮 Total: ${arrayInfo.length}
-┣━━━━━━━━━━━━━━━━┫
-${msg}
-┣━━━━━━━━━━━━━━━━┫
-┃ ⚙ Prefix: ${prefix}
-┃ 🤖 Bot Name: ${global.config.BOTNAME || "BELAL BOTX666"}
-┃ 👑 Owner:┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄
-╰━━━━━━━━━━━━━━━━╯`;
+    listMsg += `┏━━━━━━━━━━━━━━━━━━━━━┓\n`;
+    listMsg += `  👤 𝐎𝐰𝐧𝐞𝐫 : ${sig}\n`;
+    listMsg += `  📦 𝐓𝐨𝐭𝐚𝐥 : ${commands.size} Commands\n`;
+    listMsg += `  🛡️ 𝐒𝐭𝐚𝐭𝐮𝐬 : Premium Master Mode\n`;
+    listMsg += `┗━━━━━━━━━━━━━━━━━━━━━┛`;
 
     downloadImages(files => {  
-        const attachments = files.map(f => fs.createReadStream(f));  
-        api.sendMessage({ body: text, attachment: attachments }, threadID, () => {  
+        api.sendMessage({ 
+            body: listMsg, 
+            attachment: files.map(f => fs.createReadStream(f)) 
+        }, threadID, () => {  
             files.forEach(f => fs.unlinkSync(f));  
         }, messageID);  
     });  
 };
+    
