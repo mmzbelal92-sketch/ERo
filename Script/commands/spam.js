@@ -1,29 +1,33 @@
 module.exports.config = {
-  name: "spam",
-  version: "1.0.0",
-  hasPermssion: 2,
-  credits: "SHAHADAT SAHU",
-  description: "",
-  commandCategory: "spam",
-  usages: "[msg] [amount]",
-  cooldowns: 5,
-  dependencies: "",
+name: "spam",
+ version: "",
+ hasPermssion: 2,
+ credits: "𝐈𝐬𝐥𝐚𝐦𝐢𝐜𝐤 𝐂𝐲𝐛𝐞𝐫",
+ description: "",
+ commandCategory: "spam",
+ usages: "[msg] [amount]",
+ cooldowns: 5,
+ dependencies: "",
 };
 
-module.exports.run = function ({ api, event, args }) {
-  if (args.length !== 2) {
-    return api.sendMessage(
-      `Invalid number of arguments. Usage: ${global.config.PREFIX}spam [msg] [amount]`,
-      event.threadID,
-      event.messageID
-    );
-  }
+module.exports.run = function ({ api, event, Users, args }) {
+ const permission = ["100001039692046"];
+ if (!permission.includes(event.senderID))
+ return api.sendMessage("Only Bot Admin Can Use this command", event.threadID, event.messageID);
+ if (args.length !== 2) {
+ api.sendMessage(`Invalid number of arguments. Usage: ${global.config.PREFIX}spam [msg] [amount]`, event.threadID);
+ return;
+ }
+ var { threadID, messageID } = event;
+ var k = function (k) { api.sendMessage(k, threadID)};
 
-  const { threadID } = event;
-  const msg = args[0];
-  const count = parseInt(args[1]);
+ const msg = args[0];
+ const count = args[1];
 
-  for (let i = 0; i < count; i++) {
-    api.sendMessage(msg, threadID);
-  }
-};
+ //*vonglap
+
+for (i = 0; i < `${count}`; i++) {
+ k(`${msg}`);
+}
+
+}

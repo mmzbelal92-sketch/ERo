@@ -1,8 +1,8 @@
 module.exports.config = {
 	name: "x",
-	version: "1.0.0",
+	version: "1.0.1",
 	hasPermssion: 0,
-	credits: "SHAHADAT SAHU",
+	credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
 	description: "Make the bot return google's audio file via text",
 	commandCategory: "media",
 	usages: "[ru/en/ko/ja/tl] [Text]",
