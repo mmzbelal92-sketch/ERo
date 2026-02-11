@@ -4,73 +4,45 @@ const path = require("path");
 
 module.exports.config = {
     name: "help",
-    version: "6.0.0",
+    version: "7.5.0",
     hasPermssion: 0,
     credits: "BELAL BOTX666",
-    description: "ক্যাটাগরি অনুযায়ী ধাপে ধাপে চোখ ধাঁধানো হেল্প লিস্ট",
+    description: "সহজ এবং সাধারণ ইংরেজি ফন্টে হেল্প লিস্ট",
     commandCategory: "system",
-    usages: "[command name/page number]",
-    cooldowns: 5,
-    envConfig: {
-        autoUnsend: true,
-        delayUnsend: 30
-    }
+    usages: "[Command Name]",
+    cooldowns: 5
 };
 
-module.exports.languages = {
-    "en": {
-        "moduleInfo": `┏━━━━━━━━━━━━━━━━━━━┓\n   ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐃𝐄𝐓𝐀𝐈𝐋𝐒 ✨\n┗━━━━━━━━━━━━━━━━━━━┛\n\n🔹 Name: %1\n🔹 Usage: %2\n🔹 Desc: %3\n🔹 Permission: %4\n🔹 Credit: %5\n🔹 Category: %6\n🔹 Cooldown: %7s\n\n━━━━━━━━━━━━━━━━━━━━\n⚙️ Prefix: %8\n🤖 Bot: %9\n👑 Owner: ┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄\n━━━━━━━━━━━━━━━━━━━━`
-    }
-};
-
-// আপনার দেওয়া স্পেশাল ইমেজ লিঙ্কসমূহ
-const helpImages = [
-    "https://i.imgur.com/6b6DGcW.jpeg",
-    "https://i.imgur.com/FQQq8WH.jpeg",
-    "https://i.imgur.com/CY5sgsk.jpeg"
-];
-
-function downloadImages(callback) {
-    const randomUrl = helpImages[Math.floor(Math.random() * helpImages.length)];
-    const filePath = path.join(__dirname, "cache", "help_premium.jpg");
-    
-    request(randomUrl)
-        .pipe(fs.createWriteStream(filePath))
-        .on("close", () => callback([filePath]));
-}
-
-module.exports.run = function ({ api, event, args, getText }) {
+module.exports.run = async function ({ api, event, args }) {
     const { commands } = global.client;
     const { threadID, messageID } = event;
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;
-    const botName = "𝐁𝐄𝐋𝐀𝐋 𝐁𝐎𝐓 𝐗𝟔𝟔𝟔 ✡️";
-    const sig = "┄┉❈✡️⋆⃝চাঁদেড়~পাহাড়✿⃝🪬❈┉┄";
+    const prefix = global.config.PREFIX;
+    
+    const helpImages = [
+        "https://i.imgur.com/6b6DGcW.jpeg",
+        "https://i.imgur.com/FQQq8WH.jpeg"
+    ];
 
-    // ১. নির্দিষ্ট কমান্ডের ডিটেইলস দেখলে
-    if (args[0] && commands.has(args[0].toLowerCase())) {  
-        const command = commands.get(args[0].toLowerCase());  
-        const detailText = getText("moduleInfo",  
-            command.config.name.toUpperCase(),  
-            command.config.usages || "No usages",  
-            command.config.description || "No description",  
-            command.config.hasPermssion == 0 ? "User" : "Admin",  
-            command.config.credits || "Unknown",  
-            command.config.commandCategory || "General",  
-            command.config.cooldowns || 0,  
-            prefix,  
-            botName
-        );  
+    const randomUrl = helpImages[Math.floor(Math.random() * helpImages.length)];
+    const cachePath = path.join(__dirname, "cache", "help_clean.jpg");
 
-        downloadImages(files => {  
-            api.sendMessage({ body: detailText, attachment: files.map(f => fs.createReadStream(f)) }, threadID, () => {  
-                files.forEach(f => fs.unlinkSync(f));  
-            }, messageID);  
-        });  
-        return;  
-    }  
+    if (!fs.existsSync(path.join(__dirname, "cache"))) fs.mkdirSync(path.join(__dirname, "cache"));
 
-    // ২. ক্যাটাগরি অনুযায়ী ধাপে ধাপে সব কমান্ড দেখলে
+    // ১. নির্দিষ্ট কমান্ডের ডিটেইলস
+    if (args[0] && commands.has(args[0].toLowerCase())) {
+        const cmd = commands.get(args[0].toLowerCase()).config;
+        const detailMsg = `[ Command Info ]\n--------------------------\nName: ${cmd.name}\nDescription: ${cmd.description}\nUsage: ${cmd.usages}\nCategory: ${cmd.commandCategory}\nCooldown: ${cmd.cooldowns}s\nPermission: ${cmd.hasPermssion == 0 ? "User" : "Admin"}\n--------------------------\nOwner: চাঁদের পাহাড় ✡️`;
+
+        const imgStream = request(encodeURI(randomUrl)).pipe(fs.createWriteStream(cachePath));
+        imgStream.on("close", () => {
+            api.sendMessage({ body: detailMsg, attachment: fs.createReadStream(cachePath) }, threadID, () => {
+                if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
+            }, messageID);
+        });
+        return;
+    }
+
+    // ২. সাধারণ হেল্প লিস্ট ডিজাইন
     const categories = {};
     for (let [name, value] of commands) {
         const cat = value.config.commandCategory || "General";
@@ -78,26 +50,25 @@ module.exports.run = function ({ api, event, args, getText }) {
         categories[cat].push(name);
     }
 
-    let listMsg = `┏━━━━━━━━━━━━━━━━━━━┓\n   🔱  𝐁𝐄𝐋𝐀𝐋 𝐁𝐎𝐓 𝐗𝟔𝟔𝟔  🔱\n┗━━━━━━━━━━━━━━━━━━━┛\n\n`;
+    let helpMsg = `--- BELAL BOT X666 ---\n--------------------------\n`;
 
     for (const category in categories) {
-        listMsg += `✨ ━━『 ${category.toUpperCase()} 』━━ ✨\n`;
-        listMsg += `  ❯ ${categories[category].join(", ")}\n\n`;
+        helpMsg += `[ ${category.toUpperCase()} ]\n`;
+        helpMsg += `> ${categories[category].sort().join(", ")}\n\n`;
     }
 
-    listMsg += `┏━━━━━━━━━━━━━━━━━━━━━┓\n`;
-    listMsg += `  👤 𝐎𝐰𝐧𝐞𝐫 : ${sig}\n`;
-    listMsg += `  📦 𝐓𝐨𝐭𝐚𝐥 : ${commands.size} Commands\n`;
-    listMsg += `  🛡️ 𝐒𝐭𝐚𝐭𝐮𝐬 : Premium Master Mode\n`;
-    listMsg += `┗━━━━━━━━━━━━━━━━━━━━━┛`;
+    helpMsg += `--------------------------\n`;
+    helpMsg += `Owner: চাঁদের পাহাড় ✡️\n`;
+    helpMsg += `Total: ${commands.size} Commands\n`;
+    helpMsg += `Usage: ${prefix}help [Command Name]`;
 
-    downloadImages(files => {  
+    const imgStream = request(encodeURI(randomUrl)).pipe(fs.createWriteStream(cachePath));
+    imgStream.on("close", () => {
         api.sendMessage({ 
-            body: listMsg, 
-            attachment: files.map(f => fs.createReadStream(f)) 
-        }, threadID, () => {  
-            files.forEach(f => fs.unlinkSync(f));  
-        }, messageID);  
-    });  
+            body: helpMsg, 
+            attachment: fs.createReadStream(cachePath) 
+        }, threadID, () => {
+            if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
+        }, messageID);
+    });
 };
-    
